@@ -20,7 +20,7 @@ def chatgpt_stream(response):
             if content is not None:
                 yield content
 
-@app.get("/api/python")
+# @app.get("/api/python")
 def hello_world():
     response = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",
