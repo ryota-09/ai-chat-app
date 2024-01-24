@@ -1,3 +1,4 @@
+import { OpenAIStream } from "@/util";
 import { IncomingMessage } from "http";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -7,10 +8,11 @@ export const config = {
 
 export async function GET(req: NextRequest) {
   console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-  const data = await fetch("http://localhost:3000/api/python")
+  
+  const stream = await OpenAIStream("http://localhost:3000/api/python");
+  
   console.log("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb")
-  console.log(data)
-  return NextResponse.json({ message: data });
+  return new Response(stream)
   // const stream = data as unknown as IncomingMessage;
   // for await (const chunk of stream) {
   //   console.log("ccccccccccccccccccccccccccccccccccc")
