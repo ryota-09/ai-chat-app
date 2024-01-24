@@ -2,10 +2,6 @@ import { OpenAIStream } from "@/util";
 import { IncomingMessage } from "http";
 import { NextRequest, NextResponse } from "next/server";
 
-export const config = {
-  runtime: "edge",
-};
-
 export async function GET(req: NextRequest) {
   console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
   
