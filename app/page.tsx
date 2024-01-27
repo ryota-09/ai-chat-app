@@ -1,9 +1,5 @@
-import PromptInput from "@/components/PromptInput/PromptInput.presenter";
+import { redirect } from "next/navigation";
 
 export default function Home() {
-  return (
-    <main>
-      <p>テキスト</p>
-    </main>
-  );
+  return redirect("/chat");
 }
