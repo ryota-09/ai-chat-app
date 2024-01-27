@@ -13,14 +13,14 @@ export default function PromptInput() {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto">
       <form
         method="post"
         onSubmit={handleSubmit(sendPrompt)}
-        className="space-y-4"
+        className="flex gap-3"
       >
         <input
-          className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-basic focus:border-transparent"
           placeholder="プロンプトを入力してください"
           {...register("content")}
           onBlur={async () => {
@@ -30,7 +30,7 @@ export default function PromptInput() {
         />
         <button
           type="submit"
-          className="w-full p-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600"
+          className="w-[10%] p-2 text-gray-basic bg-green-dark rounded-md hover:opacity-80"
         >
           送信
         </button>
