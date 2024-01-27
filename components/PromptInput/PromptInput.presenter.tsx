@@ -4,15 +4,33 @@ import { useRouter } from "next/navigation";
 import { ChatMessageType } from "@/domains/form";
 import { SubmitHandler, useFormContext } from "react-hook-form";
 import { getChatId } from "@/util";
+import { useContext } from "react";
+import { AppStateContext } from "@/provider/AppProvider";
 
 export default function PromptInput() {
-  const router = useRouter();
-  const { register, handleSubmit } = useFormContext<ChatMessageType>();
+  const appStateContext = useContext(AppStateContext);
+  const { register, handleSubmit, reset } = useFormContext<ChatMessageType>();
 
   const sendPrompt: SubmitHandler<ChatMessageType> = async (
     data: ChatMessageType
   ) => {
-    console.log(data);
+    const userMessage = {
+      id: data.id,
+      role: "user",
+      content: data.content,
+      date: `${Date.now()}`,
+    };
+    const currentChat = {
+      id: "1",
+      title: data.content,
+      messages: [userMessage],
+      date: `${Date.now()}`,
+    };
+    appStateContext?.dispatch({
+      type: "UPDATE_CHAT_HISTORY",
+      payload: currentChat,
+    });
+    reset()
     // sseFetcher("/api/chat", data, (event) => {
     //   setText((pre) => (pre += event.data));
     // });

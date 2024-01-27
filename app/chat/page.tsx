@@ -1,7 +1,9 @@
+import ClientChatHistoryList from "@/components/ChatHistory/ChatHistoryList.client";
+
 export default function ChatPage() {
   return (
     <main>
-      <p>テキスト</p>
+      <ClientChatHistoryList isNewChat={true} />
     </main>
   );
 }

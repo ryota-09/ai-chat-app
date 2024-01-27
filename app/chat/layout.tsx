@@ -12,13 +12,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <AppStateProvider>
-      <ClientFormProvider>
+    <ClientFormProvider>
+      <AppStateProvider>
         {children}
         <footer className="flex flex-col justify-end h-screen pb-10">
           <PromptInput />
         </footer>
-      </ClientFormProvider>
-    </AppStateProvider>
+      </AppStateProvider>
+    </ClientFormProvider>
   );
 }
