@@ -19,7 +19,7 @@ def chatgpt_stream(response):
             if content is not None:
                 yield "data: " + content + "\n\n"
 
-@app.post("/api/chat")
+# @app.post("/api/chat")
 async def hello_world(request: Request):
         data = await request.json()
         content = data.get('content')
