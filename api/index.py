@@ -14,13 +14,12 @@ app = FastAPI()
 
 def chatgpt_stream(response):
     for chunk in response:
-        print("call")
         if chunk is not None:
             content = chunk["choices"][0]["delta"].get("content")
             if content is not None:
-                yield content
+                yield "data: " + content + "\n\n"
 
-# @app.get("/api/python")
+@app.get("/api/python")
 def hello_world():
     response = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",

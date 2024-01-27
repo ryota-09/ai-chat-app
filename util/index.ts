@@ -1,45 +1,32 @@
 import {
-  createParser,
-  ParsedEvent,
-  ReconnectInterval,
-} from 'eventsource-parser'
+  EventSourceMessage,
+  fetchEventSource,
+} from "@microsoft/fetch-event-source";
 
-export async function OpenAIStream(url: string, payload?: any) {
-  const encoder = new TextEncoder()
-  const decoder = new TextDecoder()
-  const res = await fetch(url)
-  console.log("@@@@@@@@@@@@@")
-  
-  const stream = new ReadableStream({
-    async start(controller) {
-      function onParse(event: ParsedEvent | ReconnectInterval) {
-        console.log(event)
-        if (event.type === "event") {
-          const data = event.data
-          console.log(data)
-          if (data === '[DONE]') {
-            controller.close()
-            return
-          }
-          try {
-            const json = JSON.parse(data)
-            const text = json.choices[0].delta.content
-            console.log(text)
-            const queue = encoder.encode(text)
-            controller.enqueue(queue)
-          } catch (e) {
-            controller.error(e)
-          }
-        }
-      }
-
-      const parser = createParser(onParse)
-      console.log("oooooooo", res.body)
-      for await (const chunk of res.body as any) {
-        parser.feed(decoder.decode(chunk))
+export const sseFetcher = async (
+  url: string,
+  onMessage: (event: EventSourceMessage) => void
+) => {
+  await fetchEventSource(`${url}`, {
+    method: "GET",
+    headers: { Accept: "text/event-stream" },
+    onopen: async (res) => {
+      if (res.ok && res.status === 200) {
+        console.log("Connection made ");
+      } else if (res.status >= 400 && res.status < 500 && res.status !== 429) {
+        console.log("Client-side error ");
       }
     },
-  })
-
-  return stream
-}
+    async onmessage(event) {
+      console.log("Message", event);
+      console.log(event.data);
+      onMessage(event);
+    },
+    onclose() {
+      console.log("Connection closed by the server");
+    },
+    onerror(err) {
+      console.log("There was an error from server", err);
+    },
+  });
+};
