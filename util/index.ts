@@ -1,3 +1,4 @@
+import { ChatMessageType } from "@/domains/form";
 import {
   EventSourceMessage,
   fetchEventSource,
@@ -6,11 +7,13 @@ import { v4 as uuid } from 'uuid';
 
 export const sseFetcher = async (
   url: string,
+  data: ChatMessageType,
   onMessage: (event: EventSourceMessage) => void
 ) => {
   await fetchEventSource(`${url}`, {
-    method: "GET",
-    headers: { Accept: "text/event-stream" },
+    method: "POST",
+    headers: { Accept: "text/event-stream", "Content-Type": "application/json" },
+    body: JSON.stringify(data),
     onopen: async (res) => {
       if (res.ok && res.status === 200) {
         console.log("Connection made ");
@@ -19,8 +22,6 @@ export const sseFetcher = async (
       }
     },
     async onmessage(event) {
-      console.log("Message", event);
-      console.log(event.data);
       onMessage(event);
     },
     onclose() {
