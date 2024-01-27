@@ -1,5 +1,7 @@
 "use client";
+import { ChatMessageSchema, ChatMessageType } from "@/domains/form";
 import type { ReactNode } from "react";
+import { valibotResolver } from "@hookform/resolvers/valibot";
 import { useForm, FormProvider } from "react-hook-form";
 
 type PropType = {
@@ -7,14 +9,11 @@ type PropType = {
 };
 
 export function ClientFormProvider({ children }: PropType) {
-  const methods = useForm({
+  const methods = useForm<ChatMessageType>({
     mode: "onChange",
-    criteriaMode: "all"
+    criteriaMode: "all",
+    resolver: valibotResolver(ChatMessageSchema),
   });
 
-  return (
-    <FormProvider {...methods}>
-      {children}
-    </FormProvider>
-  );
+  return <FormProvider {...methods}>{children}</FormProvider>;
 }
