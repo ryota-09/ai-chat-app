@@ -16,7 +16,7 @@ def add_conversation(conversation_data):
     data = res.get('data')
     return data
 
-def get_conversation(conversation_id):
+def get_conversation_by_id(conversation_id):
     res = supabase.table('conversations').select('*').eq('conversation_id', conversation_id).execute()
     data = res.get('data')
     return data

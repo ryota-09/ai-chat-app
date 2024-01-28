@@ -5,6 +5,7 @@ from fastapi.responses import StreamingResponse
 from dotenv import load_dotenv
 from supabase import create_client, Client
 
+
 load_dotenv()
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -16,6 +17,23 @@ openai.api_key = OPENAI_API_KEY
 app = FastAPI()
 
 supabase: Client  = create_client(SUPABASE_PROJECT_URL, SUPABASE_API_KEY)
+
+def add_chat_message(chat_data):
+    data = supabase.table('chat_messages').insert(chat_data).execute()
+    return data
+
+def add_conversation(conversation_data):
+    data = supabase.table('conversations').insert(conversation_data).execute()
+    return data
+
+def get_conversation_by_id(conversation_id):
+    res = supabase.table('conversations').select('*').eq('id', conversation_id).execute()
+    return res
+
+def get_messages_by_conversation_id(conversation_id):
+    res = supabase.table('chat_messages').select('*').eq('conversation_id', conversation_id).execute()
+    data = res.get('data')
+    return data
 
 def chatgpt_stream(response):
     for chunk in response:
@@ -40,8 +58,30 @@ async def hello_world(request: Request):
         return StreamingResponse(
             chatgpt_stream(response),media_type="text/event-stream"
         )
-@app.get("/api/test")
-def get_all_messages():
-    data = { "id": "aaaaa", "role": "user", "content": "Hello, how are you?", "date": "2021-09-01T00:00:00.000000+00:00" , "feedback": "good", "conversation_id": "test01"}
-    messages = supabase.table('chat_messages').insert(data).execute()
-    return messages
+
+@app.post("/api/conversations")
+async def post_conversation(request: Request):
+    data = await request.json()
+    conversation_data = {
+        'id': data.get('id'),
+        'title': data.get('title'),
+        'date': data.get('date'),
+    }
+    add_conversation(conversation_data)
+    
+    current_messages = data.get('messages')
+    for message in current_messages:
+        chat_data = {
+            "id" : message.get('id'),
+            "role" : message.get('role'),
+            "date" : message.get('date'),
+            "conversation_id" : data.get('id'),
+            "content" : message.get('content'),
+            # "feedback" : "good"
+        }
+        add_chat_message(chat_data)
+
+@app.get("/api/chat/{conversation_id}")
+async def get_chat_detail(conversation_id):
+    conversation_data = get_conversation_by_id(conversation_id)
+    return conversation_data
