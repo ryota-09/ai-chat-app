@@ -8,7 +8,7 @@ export default async function ServerChatHistoryItem({ id }: Props) {
   return (
     <div>
       <div>
-        {data.data.map((message, index) => (
+        {data.data.map((message: any, index: any) => (
           <div key={index}>
             <p>{message.role}</p>
             <p>{message.content}</p>

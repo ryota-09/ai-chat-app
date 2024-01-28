@@ -54,7 +54,6 @@ async def hello_world(request: Request):
                 ],
                 stream=True,
             )
-
         return StreamingResponse(
             chatgpt_stream(response),media_type="text/event-stream"
         )

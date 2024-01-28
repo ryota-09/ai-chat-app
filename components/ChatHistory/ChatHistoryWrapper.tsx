@@ -5,7 +5,7 @@ import { Conversation } from "@/types/models";
 import { getChatId, getConversationId, sseFetcher } from "@/util";
 import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
-import { SubmitHandler } from "react-hook-form";
+import { SubmitHandler, useFormContext } from "react-hook-form";
 import PromptInput from "../PromptInput/PromptInput";
 
 type Props = {};
@@ -13,6 +13,7 @@ type Props = {};
 export default function ChatHistoryWrapper() {
   const router = useRouter();
   const appStateContext = useContext(AppStateContext);
+  const { reset } = useFormContext<ChatMessageType>();
   const [isTurnEnd, setIsTurnEnd] = useState(false);
   const [currentConversation, setCurrentConversation] =
     useState<Conversation | null>(null);
@@ -76,11 +77,12 @@ export default function ChatHistoryWrapper() {
           },
           body: JSON.stringify(postConversation),
         });
-
+        reset();
         router.push(`/chat/${currentConversation?.id}`);
       };
       postConversation();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentConversation, isTurnEnd, router]);
 
   return (
