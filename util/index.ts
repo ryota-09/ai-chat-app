@@ -44,7 +44,7 @@ export const getChatId = () => {
   return `chat-${year}${month}${day}${hours}${minutes}_${uuid()}`;
 }
 
-export const getMessageId = () => {
+export const getConversationId = () => {
   const date = new Date();
   const year = date.getFullYear();
   const month = ("0" + (date.getMonth() + 1)).slice(-2);
@@ -52,5 +52,5 @@ export const getMessageId = () => {
   const hours = ("0" + date.getHours()).slice(-2);
   const minutes = ("0" + date.getMinutes()).slice(-2);
 
-  return `message-${year}${month}${day}${hours}${minutes}_${uuid()}`;
+  return `conversation-${year}${month}${day}${hours}${minutes}_${uuid()}`;
 }

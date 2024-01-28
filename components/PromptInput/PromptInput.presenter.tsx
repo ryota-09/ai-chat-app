@@ -3,7 +3,7 @@ import { redirect, useRouter } from "next/navigation";
 
 import { ChatMessageType } from "@/domains/form";
 import { SubmitHandler, useFormContext } from "react-hook-form";
-import { getChatId, getMessageId } from "@/util";
+import { getChatId, getConversationId, getMessageId } from "@/util";
 import { useContext } from "react";
 import { AppStateContext } from "@/provider/AppProvider";
 
@@ -15,15 +15,15 @@ export default function PromptInput() {
   const sendPrompt: SubmitHandler<ChatMessageType> = async (
     data: ChatMessageType
   ) => {
-    const messageId = getMessageId();
+    const conversationId = getConversationId();
     const userMessage = {
-      id: messageId,
+      id: data.id,
       role: "user",
       content: data.content,
       date: `${Date.now()}`,
     };
     const userChat = {
-      id: data.id,
+      id: conversationId,
       title: data.content,
       messages: [userMessage],
       date: `${Date.now()}`,
@@ -33,7 +33,7 @@ export default function PromptInput() {
       payload: userChat,
     });
     reset()
-    router.push(`/chat/${messageId}`);
+    router.push(`/chat/${conversationId}`);
     // sseFetcher("/api/chat", data, (event) => {
     //   setText((pre) => (pre += event.data));
     // });

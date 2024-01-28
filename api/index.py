@@ -3,14 +3,19 @@ import openai
 from fastapi import Request, FastAPI
 from fastapi.responses import StreamingResponse
 from dotenv import load_dotenv
+from supabase import create_client, Client
 
 load_dotenv()
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+SUPABASE_PROJECT_URL = os.getenv("SUPABASE_PROJECT_URL")
+SUPABASE_API_KEY = os.getenv("SUPABASE_API_KEY")
 
 openai.api_key = OPENAI_API_KEY
 
 app = FastAPI()
+
+supabase: Client  = create_client(SUPABASE_PROJECT_URL, SUPABASE_API_KEY)
 
 def chatgpt_stream(response):
     for chunk in response:
@@ -35,3 +40,8 @@ async def hello_world(request: Request):
         return StreamingResponse(
             chatgpt_stream(response),media_type="text/event-stream"
         )
+@app.get("/api/test")
+def get_all_messages():
+    data = { "id": "aaaaa", "role": "user", "content": "Hello, how are you?", "date": "2021-09-01T00:00:00.000000+00:00" , "feedback": "good", "conversation_id": "test01"}
+    messages = supabase.table('chat_messages').insert(data).execute()
+    return messages
