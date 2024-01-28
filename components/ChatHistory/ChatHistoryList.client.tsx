@@ -10,21 +10,22 @@ type Props = {
 export default function ClientChatHistoryList({ isNewChat }: Props) {
   const appStateContext = useContext(AppStateContext);
   const chatHistory = appStateContext?.state.chatHistory;
-  console.log(chatHistory);
+  const isStreaming =
+    appStateContext?.state.chatHistory &&
+    appStateContext?.state.chatHistory.length % 2 === 1;
 
-  if (isNewChat) {
-    return <WelcomeMessage />
+  if (isNewChat && chatHistory && chatHistory.length === 0) {
+    return <WelcomeMessage />;
   }
 
   return (
     <>
-      {chatHistory && chatHistory.length > 0 ? (
-        chatHistory.map((chat, index) => (
-          <ChatHistoryClientItem key={index} chat={chat.messages[0]} />
-        ))
-      ) : (
-        <p>既存チャット</p>
-      )}
+      {chatHistory &&
+        chatHistory.length > 0 &&
+        chatHistory[0].messages.map((chat, index) => (
+          <ChatHistoryClientItem key={index} chat={chat} />
+        ))}
+        {isStreaming && <div>ストリーミング中...</div>}
     </>
   );
 }

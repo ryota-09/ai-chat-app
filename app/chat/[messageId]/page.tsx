@@ -5,8 +5,6 @@ export default function ChatDetailPage({ params }: { params: { messageId: string
 
   return (
     <main>
-      <p>でテールページ</p>
-      <ClientChatHistoryList isNewChat={false} />
       {/* @ts-expect-error Server Component */}
       <ServerChatHistoryItem id={params.messageId} />
     </main>

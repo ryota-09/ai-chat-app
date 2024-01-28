@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { ChatMessageType } from "@/domains/form";
 import { AppStateContext } from "@/provider/AppProvider";
 import { Conversation } from "@/types/models";
@@ -13,7 +13,6 @@ type Props = {};
 export default function ChatHistoryWrapper() {
   const router = useRouter();
   const appStateContext = useContext(AppStateContext);
-  const [text, setText] = useState("");
   const [isTurnEnd, setIsTurnEnd] = useState(false);
   const [currentConversation, setCurrentConversation] =
     useState<Conversation | null>(null);
@@ -37,38 +36,38 @@ export default function ChatHistoryWrapper() {
 
     setCurrentConversation(currentConversation);
 
-    sseFetcher("/api/chat", data, (event) => {
-      setText((pre) => (pre += event.data));
-      if (event.data === "turn_end") {
-        setIsTurnEnd(true);
-      }
-    });
-
     appStateContext?.dispatch({
       type: "UPDATE_CHAT_HISTORY",
       payload: currentConversation,
+    });
+
+    sseFetcher("/api/chat", data, (event) => {
+      appStateContext?.dispatch({
+        type: "UPDATE_STREAMING_TEXT",
+        payload: event.data,
+      });
+      if (event.data === "turn_end") {
+        setIsTurnEnd(true);
+      }
     });
   };
 
   useEffect(() => {
     if (isTurnEnd && currentConversation) {
       const postConversation = async () => {
-        const chatId = getChatId();
+        const botChat = {
+          id: getChatId(),
+          role: "system",
+          content: appStateContext?.state.streamingText ?? "",
+          date: `${Date.now()}`,
+        };
         const postConversation = {
           ...currentConversation,
-          messages: [
-            ...(currentConversation?.messages ?? []),
-            {
-              id: chatId,
-              role: "system",
-              content: text,
-              date: `${Date.now()}`,
-            },
-          ],
+          messages: [...(currentConversation?.messages ?? []), botChat],
         };
         appStateContext?.dispatch({
-          type: "UPDATE_CHAT_HISTORY",
-          payload: postConversation,
+          type: "UPDATE_CHAT_MESSAGE",
+          payload: botChat,
         });
         await fetch("/api/conversations", {
           method: "POST",
@@ -77,26 +76,15 @@ export default function ChatHistoryWrapper() {
           },
           body: JSON.stringify(postConversation),
         });
+
         router.push(`/chat/${currentConversation?.id}`);
       };
       postConversation();
     }
-  }, [currentConversation, isTurnEnd, router, text]);
+  }, [currentConversation, isTurnEnd, router]);
 
   return (
     <div>
-      <div>
-        {appStateContext?.state.chatHistory.map((chat, index) => (
-          <div key={index}>
-            {chat.messages.map((message, index) => (
-              <div key={index}>
-                <p>{message.role}</p>
-                <p>{message.content}</p>
-              </div>
-            ))}
-          </div>
-        ))}
-      </div>
       <PromptInput submitHandler={sendPrompt} />
     </div>
   );
