@@ -1,17 +1,17 @@
-"use client";
-import { useRouter } from "next/navigation";
-
 import { ChatMessageType } from "@/domains/form";
-import { SubmitHandler, useFormContext } from "react-hook-form";
-import { getChatId, getConversationId, sseFetcher } from "@/util";
-import { useContext, useEffect, useState } from "react";
 import { AppStateContext } from "@/provider/AppProvider";
 import { Conversation } from "@/types/models";
+import { getChatId, getConversationId, sseFetcher } from "@/util";
+import { useRouter } from "next/router";
+import { useContext, useEffect, useState } from "react";
+import { SubmitHandler, useFormContext } from "react-hook-form";
+import PromptInput from "../PromptInput/PromptInput";
 
-export default function PromptInput() {
+type Props = {};
+
+export default function ChatHistoryWrapper() {
   const router = useRouter();
   const appStateContext = useContext(AppStateContext);
-  const { register, handleSubmit, reset } = useFormContext<ChatMessageType>();
   const [text, setText] = useState("");
   const [isTurnEnd, setIsTurnEnd] = useState(false);
   const [currentConversation, setCurrentConversation] =
@@ -20,15 +20,15 @@ export default function PromptInput() {
   const sendPrompt: SubmitHandler<ChatMessageType> = async (
     data: ChatMessageType
   ) => {
-    const conversationId = getConversationId();
     const userChat = {
       id: data.id,
       role: "user",
       content: data.content,
       date: `${Date.now()}`,
     };
+    
     const currentConversation = {
-      id: conversationId,
+      id: getConversationId(),
       title: data.content,
       messages: [userChat],
       date: `${Date.now()}`,
@@ -76,33 +76,11 @@ export default function PromptInput() {
       };
       postConversation();
     }
-  }, [currentConversation, isTurnEnd, router]);
+  }, [currentConversation, isTurnEnd, router, text]);
 
-  return (
+  return(
     <div>
-      {!isTurnEnd && text}
-      <form
-        method="post"
-        onSubmit={handleSubmit(sendPrompt)}
-        className="flex gap-3"
-      >
-        <textarea
-          className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-basic focus:border-transparent"
-          placeholder="プロンプトを入力してください"
-          rows={1}
-          {...register("content")}
-          onBlur={() => {
-            const id = getChatId();
-            register("id", { value: id });
-          }}
-        ></textarea>
-        <button
-          type="submit"
-          className="w-[10%] p-2 text-gray-basic bg-green-dark rounded-md hover:opacity-80"
-        >
-          送信
-        </button>
-      </form>
+      <PromptInput submitHandler={sendPrompt} />
     </div>
-  );
+  )
 }

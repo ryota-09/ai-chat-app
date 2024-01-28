@@ -1,5 +1,5 @@
 import { ClientFormProvider } from "@/provider/FormProvider";
-import PromptInput from "@/components/PromptInput/PromptInput.presenter";
+import PromptInput from "@/components/PromptInput/PromptInput";
 import { AppStateProvider } from "@/provider/AppProvider";
 export const metadata = {
   title: "Create Next App",

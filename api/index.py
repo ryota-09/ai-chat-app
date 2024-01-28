@@ -31,8 +31,7 @@ def get_conversation_by_id(conversation_id):
     return res
 
 def get_messages_by_conversation_id(conversation_id):
-    res = supabase.table('chat_messages').select('*').eq('conversation_id', conversation_id).execute()
-    data = res.get('data')
+    data = supabase.table('chat_messages').select('*').eq('conversation_id', conversation_id).execute()
     return data
 
 def chatgpt_stream(response):
@@ -82,7 +81,7 @@ async def post_conversation(request: Request):
         }
         add_chat_message(chat_data)
 
-@app.get("/api/chat/{conversation_id}")
+@app.get("/api/chat/test/{conversation_id}")
 async def get_chat_detail(conversation_id):
-    conversation_data = get_conversation_by_id(conversation_id)
-    return conversation_data
+    messages_data = get_messages_by_conversation_id(conversation_id)
+    return messages_data
