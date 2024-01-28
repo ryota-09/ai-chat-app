@@ -41,8 +41,9 @@ def chatgpt_stream(response):
             content = chunk["choices"][0]["delta"].get("content")
             if content is not None:
                 yield "data: " + content + "\n\n"
+    yield "data: turn_end\n\n"
 
-# @app.post("/api/chat")
+@app.post("/api/chat")
 async def hello_world(request: Request):
         data = await request.json()
         content = data.get('content')

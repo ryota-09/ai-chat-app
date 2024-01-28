@@ -3,14 +3,19 @@ import { useRouter } from "next/navigation";
 
 import { ChatMessageType } from "@/domains/form";
 import { SubmitHandler, useFormContext } from "react-hook-form";
-import { getChatId, getConversationId } from "@/util";
-import { useContext } from "react";
+import { getChatId, getConversationId, sseFetcher } from "@/util";
+import { useContext, useEffect, useState } from "react";
 import { AppStateContext } from "@/provider/AppProvider";
+import { Conversation } from "@/types/models";
 
 export default function PromptInput() {
   const router = useRouter();
   const appStateContext = useContext(AppStateContext);
   const { register, handleSubmit, reset } = useFormContext<ChatMessageType>();
+  const [text, setText] = useState("");
+  const [isTurnEnd, setIsTurnEnd] = useState(false);
+  const [currentConversation, setCurrentConversation] =
+    useState<Conversation | null>(null);
 
   const sendPrompt: SubmitHandler<ChatMessageType> = async (
     data: ChatMessageType
@@ -28,31 +33,54 @@ export default function PromptInput() {
       messages: [userChat],
       date: `${Date.now()}`,
     };
+
+    setCurrentConversation(currentConversation);
+
+    sseFetcher("/api/chat", data, (event) => {
+      setText((pre) => (pre += event.data));
+      if (event.data === "turn_end") {
+        setIsTurnEnd(true);
+      }
+    });
+
     appStateContext?.dispatch({
       type: "UPDATE_CHAT_HISTORY",
       payload: currentConversation,
     });
-    reset();
-
-    const response = await fetch("/api/conversations", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(currentConversation),
-    });
-
-    const resData = await response.json();
-    console.log("response", resData);
-
-    router.push(`/chat/${conversationId}`);
-    // sseFetcher("/api/chat", data, (event) => {
-    //   setText((pre) => (pre += event.data));
-    // });
   };
+
+  useEffect(() => {
+    if (isTurnEnd) {
+      const postConversation = async () => {
+        const chatId = getChatId();
+        const postConversation = {
+          ...currentConversation,
+          messages: [
+            ...(currentConversation?.messages ?? []),
+            {
+              id: chatId,
+              role: "system",
+              content: text,
+              date: `${Date.now()}`,
+            },
+          ],
+        };
+        await fetch("/api/conversations", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(postConversation),
+        });
+        router.push(`/chat/${currentConversation?.id}`);
+      };
+      postConversation();
+    }
+  }, [currentConversation, isTurnEnd, router]);
 
   return (
     <div>
+      {!isTurnEnd && text}
       <form
         method="post"
         onSubmit={handleSubmit(sendPrompt)}
