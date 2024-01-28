@@ -1,10 +1,11 @@
+"use client"
 import { ChatMessageType } from "@/domains/form";
 import { AppStateContext } from "@/provider/AppProvider";
 import { Conversation } from "@/types/models";
 import { getChatId, getConversationId, sseFetcher } from "@/util";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
-import { SubmitHandler, useFormContext } from "react-hook-form";
+import { SubmitHandler } from "react-hook-form";
 import PromptInput from "../PromptInput/PromptInput";
 
 type Props = {};
@@ -26,7 +27,7 @@ export default function ChatHistoryWrapper() {
       content: data.content,
       date: `${Date.now()}`,
     };
-    
+
     const currentConversation = {
       id: getConversationId(),
       title: data.content,
@@ -50,7 +51,7 @@ export default function ChatHistoryWrapper() {
   };
 
   useEffect(() => {
-    if (isTurnEnd) {
+    if (isTurnEnd && currentConversation) {
       const postConversation = async () => {
         const chatId = getChatId();
         const postConversation = {
@@ -65,6 +66,10 @@ export default function ChatHistoryWrapper() {
             },
           ],
         };
+        appStateContext?.dispatch({
+          type: "UPDATE_CHAT_HISTORY",
+          payload: postConversation,
+        });
         await fetch("/api/conversations", {
           method: "POST",
           headers: {
@@ -78,9 +83,21 @@ export default function ChatHistoryWrapper() {
     }
   }, [currentConversation, isTurnEnd, router, text]);
 
-  return(
+  return (
     <div>
+      <div>
+        {appStateContext?.state.chatHistory.map((chat, index) => (
+          <div key={index}>
+            {chat.messages.map((message, index) => (
+              <div key={index}>
+                <p>{message.role}</p>
+                <p>{message.content}</p>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
       <PromptInput submitHandler={sendPrompt} />
     </div>
-  )
+  );
 }

@@ -3,10 +3,7 @@ import { useRouter } from "next/navigation";
 
 import { ChatMessageType } from "@/domains/form";
 import { SubmitHandler, useFormContext } from "react-hook-form";
-import { getChatId, getConversationId, sseFetcher } from "@/util";
-import { useContext, useEffect, useState } from "react";
-import { AppStateContext } from "@/provider/AppProvider";
-import { Conversation } from "@/types/models";
+import { getChatId } from "@/util";
 
 type Props = {
   submitHandler: SubmitHandler<ChatMessageType>;
