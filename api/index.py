@@ -58,6 +58,19 @@ async def hello_world(request: Request):
             chatgpt_stream(response),media_type="text/event-stream"
         )
 
+@app.get("/api/test")
+async def hello_world():
+        response = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": "user", "content": "カワウソについて教えて"},
+                ],
+                stream=True,
+            )
+        return StreamingResponse(
+            chatgpt_stream(response),media_type="text/event-stream"
+        )
+
 @app.post("/api/conversations")
 async def post_conversation(request: Request):
     data = await request.json()
